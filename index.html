@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+  <title>SA Tools</title>
+
+  <!-- Bootstrap: Latest compiled and minified CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/darkly/bootstrap.min.css" rel="stylesheet" integrity="sha384-S7YMK1xjUjSpEnF4P8hPUcgjXYLZKK3fQW1j5ObLSl787II9p8RO9XUGehRmKsxd" crossorigin="anonymous">
+  <style type="text/css">
+    body {
+        padding: 70px 2em 2em;
+    }
+
+    .container-fluid textarea {
+        height: 150px;
+    }
+
+    .btn {
+        margin-right: 1ex;
+    }
+  </style>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <!-- moment.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+
+</head>
+<body>
+<div class="container-fluid">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <a class="navbar-brand">SA Tools</a>
+        <a class="navbar-text navbar-right" href="https://github.com/benjamw/sa_tools/issues">Found a bug? &nbsp; Request a feature?</a>
+    </div>
+  </nav>
+
+  <div class="row">
+
+    <div class="col-md-6">
+      <h2>Dates</h2>
+
+      <section id="dates" class="well">
+        <div class="form-inline">
+          <div class="form-group">
+            <label for="days">Days added:</label>
+            <input type="number" value="14" id="days" min="0" max="366" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label for="date">&nbsp; to Date:</label>
+            <input type="date" value="1970-01-01" id="date" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="date_result">Result:</label>
+              <textarea id="date_result" class="form-control"></textarea>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="date_result">Date Entered:</label>
+              <textarea id="date_entered" class="form-control"></textarea>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="date_result">Today:</label>
+              <textarea id="date_today" class="form-control"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <h2>HTML</h2>
+
+      <section id="html" class="well">
+        <div class="form-group">
+          <label for="html_input">HTML Input:</label>
+          <textarea id="html_input" class="form-control"></textarea>
+          <button id="copy_html" class="btn btn-sm btn-info copy">Copy</button>
+          <button id="select_html" class="btn btn-sm btn-warning">Select All</button>
+          <button id="open_html" class="btn btn-sm btn-success">Open HTML</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-md-6">
+      <h2>Lists</h2>
+
+      <section id="lists" class="well">
+        <div class="row">
+          <div class="form-group col-md-6">
+            <label for="list_in" class="form-inline">Input:
+              <select id="list_type" class="form-control input-sm">
+                <option value="auto">Auto</option>
+                <option value="digits">Use Numbers</option>
+                <option value="chars">Use Words</option>
+              </select>
+              <span id="use" class="text-danger"></span>
+            </label>
+            <textarea id="list_in" class="form-control"></textarea>
+            <button id="open_admin" class="btn btn-sm btn-success">Open in Admin</button>
+            <button id="open_store" class="btn btn-sm btn-success">Open in Store</button>
+            <button id="open_readme" class="btn btn-sm btn-success">Open in ReadMe</button>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="list_nl">Newlines:</label>
+            <textarea id="list_nl" class="form-control"></textarea>
+            <button id="copy_nl" class="btn btn-sm btn-info copy">Copy</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-md-6">
+            <label for="list_csv">CSV:</label>
+            <textarea id="list_csv" class="form-control"></textarea>
+            <button id="copy_csv" class="btn btn-sm btn-info copy">Copy</button>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="list_csvs">CSV Spaced:</label>
+            <textarea id="list_csvs" class="form-control"></textarea>
+            <button id="copy_csvs" class="btn btn-sm btn-info copy">Copy</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-md-6">
+            <label for="list_sp">Spaces:</label>
+            <textarea id="list_sp" class="form-control"></textarea>
+            <button id="copy_sp" class="btn btn-sm btn-info copy">Copy</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </div>
+
+  <script type="text/javascript">
+
+  </script>
+</div>
+</body>
+</html>
