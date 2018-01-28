@@ -1,4 +1,14 @@
 <!doctype html>
+<!--
+
+TODO: make the dates work
+
+TODO: inspect the incoming base64 encoded string, and if a definitive URL, or non-URL character is found, switch the checkbox accordingly
+TODO: inspect the incoming base64 encoded string, and if padding characters are found, switch the checkbox to accordingly, ignore if not found
+
+TODO: syntax highlighting for the JSON
+
+-->
 <html lang="en">
 <head>
 
@@ -17,7 +27,11 @@
     }
 
     .container-fluid textarea {
-        height: 150px;
+        height: 100px;
+    }
+
+    .container-fluid textarea#json_result {
+        height: auto;
     }
 
     .btn {
@@ -29,111 +43,89 @@
   <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 
   <!-- moment.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.14/moment-timezone-with-data.min.js"></script>
+
+  <!-- bindWithDelay -->
+  <script>
+	  // https://github.com/bgrins/bindWithDelay/blob/master/bindWithDelay.js
+	  !function(a){a.fn.bindWithDelay=function(b,c,d,e,f){return a.isFunction(c)&&(f=e,e=d,d=c,c=void 0),d.guid=d.guid||a.guid&&a.guid++,this.each(function(){function h(){var b=a.extend(!0,{},arguments[0]),c=this,h=function(){g=null,d.apply(c,[b])};f||(clearTimeout(g),g=null),g||(g=setTimeout(h,e))}var g=null;h.guid=d.guid,a(this).bind(b,c,h)})}}(jQuery);
+  </script>
 
 </head>
 <body>
 <div class="container-fluid">
   <nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container">
+    <div class="container-fluid">
         <a class="navbar-brand">SA Tools</a>
-        <a class="navbar-text navbar-right" href="https://github.com/benjamw/sa_tools/issues">Found a bug? &nbsp; Request a feature?</a>
+        <a class="btn btn-default navbar-btn navbar-right" href="https://github.com/benjamw/sa_tools/issues">Found a bug? &nbsp; Request a feature?</a>
     </div>
   </nav>
 
   <div class="row">
 
     <div class="col-md-6">
-      <h2>Dates</h2>
+      <h2>Base64</h2>
 
-      <section id="dates" class="well">
-        <div class="form-inline">
-          <div class="form-group">
-            <label for="days">Days added:</label>
-            <input type="number" value="14" id="days" min="0" max="366" class="form-control" />
-          </div>
-          <div class="form-group">
-            <label for="date">&nbsp; to Date:</label>
-            <input type="date" value="1970-01-01" id="date" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-4">
-            <div class="form-group">
-              <label for="date_result">Result:</label>
-              <textarea id="date_result" class="form-control"></textarea>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label for="date_result">Date Entered:</label>
-              <textarea id="date_entered" class="form-control"></textarea>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label for="date_result">Today:</label>
-              <textarea id="date_today" class="form-control"></textarea>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <h2>HTML</h2>
-
-      <section id="html" class="well">
+      <section id="base64" class="well">
         <div class="form-group">
-          <label for="html_input">HTML Input:</label>
-          <textarea id="html_input" class="form-control"></textarea>
-          <button id="copy_html" class="btn btn-sm btn-info copy">Copy</button>
-          <button id="select_html" class="btn btn-sm btn-warning">Select All</button>
-          <button id="open_html" class="btn btn-sm btn-success">Open HTML</button>
+          <label for="raw_result">Raw:</label>
+          <textarea id="raw_result" class="form-control"></textarea>
+          <button class="btn btn-sm btn-info copy">Copy</button>
+        </div>
+        <div class="form-group">
+          <label for="base64_result">Base64:</label> &nbsp; &nbsp;
+          <label class="checkbox-inline" title="Use Base64 URL encoding"><input type="checkbox" id="base64url" checked="checked"> URL </label> &nbsp;
+          <label class="checkbox-inline" title="Display the Base64 padding characters ( = )"><input type="checkbox" id="base64pad" checked="checked"> Padded </label>
+          <textarea id="base64_result" class="form-control"></textarea>
+          <button class="btn btn-sm btn-info copy">Copy</button>
+        </div>
+        <div class="form-group">
+          <label for="json_result">JSON:</label>
+          <textarea id="json_result" class="form-control" rows="50"></textarea>
+          <button class="btn btn-sm btn-info copy">Copy</button>
         </div>
       </section>
     </div>
 
     <div class="col-md-6">
-      <h2>Lists</h2>
+      <h2>Dates</h2>
 
-      <section id="lists" class="well">
+      <section id="dates" class="well">
         <div class="row">
           <div class="form-group col-md-6">
-            <label for="list_in" class="form-inline">Input:
-              <select id="list_type" class="form-control input-sm">
-                <option value="auto">Auto</option>
-                <option value="digits">Use Numbers</option>
-                <option value="chars">Use Words</option>
-              </select>
-              <span id="use" class="text-danger"></span>
-            </label>
-            <textarea id="list_in" class="form-control"></textarea>
-            <button id="open_admin" class="btn btn-sm btn-success">Open in Admin</button>
-            <button id="open_store" class="btn btn-sm btn-success">Open in Store</button>
-            <button id="open_readme" class="btn btn-sm btn-success">Open in ReadMe</button>
+            <label for="date_unix">Unix: <small>(ms optional)</small></label>
+            <input type="text" id="date_unix" class="form-control" placeholder="Unix Timestamp">
           </div>
           <div class="form-group col-md-6">
-            <label for="list_nl">Newlines:</label>
-            <textarea id="list_nl" class="form-control"></textarea>
-            <button id="copy_nl" class="btn btn-sm btn-info copy">Copy</button>
+            <label for="date_tz">Timezone:</label>
+            <select id="date_tz" class="form-control"></select>
           </div>
         </div>
         <div class="row">
-          <div class="form-group col-md-6">
-            <label for="list_csv">CSV:</label>
-            <textarea id="list_csv" class="form-control"></textarea>
-            <button id="copy_csv" class="btn btn-sm btn-info copy">Copy</button>
+          <div class="form-group col-md-2">
+            <label for="date_year">Year</label>
+            <input type="number" id="date_year" class="form-control" min="0" max="3000" step="1">
           </div>
-          <div class="form-group col-md-6">
-            <label for="list_csvs">CSV Spaced:</label>
-            <textarea id="list_csvs" class="form-control"></textarea>
-            <button id="copy_csvs" class="btn btn-sm btn-info copy">Copy</button>
+          <div class="form-group col-md-2">
+            <label for="date_month">Month</label>
+            <input type="number" id="date_month" class="form-control" min="1" max="12" step="1">
           </div>
-        </div>
-        <div class="row">
-          <div class="form-group col-md-6">
-            <label for="list_sp">Spaces:</label>
-            <textarea id="list_sp" class="form-control"></textarea>
-            <button id="copy_sp" class="btn btn-sm btn-info copy">Copy</button>
+          <div class="form-group col-md-2">
+            <label for="date_day">Day</label>
+            <input type="number" id="date_day" class="form-control" min="1" max="31" step="1">
+          </div>
+          <div class="form-group col-md-2">
+            <label for="date_hour">Hour</label>
+            <input type="number" id="date_hour" class="form-control" min="0" max="23" step="1">
+          </div>
+          <div class="form-group col-md-2">
+            <label for="date_minute">Minute</label>
+            <input type="number" id="date_minute" class="form-control" min="0" max="60" step="1">
+          </div>
+          <div class="form-group col-md-2">
+            <label for="date_second">Second</label>
+            <input type="number" id="date_second" class="form-control" min="0" max="60" step="1">
           </div>
         </div>
       </section>
@@ -143,6 +135,330 @@
 
   <script type="text/javascript">
 
+    var bindDelay = 500; // ms
+    var blocked = false;
+
+    // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
+    if (!String.prototype.padStart) {
+        String.prototype.padStart = function padStart(targetLength,padString) {
+            targetLength = targetLength>>0; //truncate if number or convert non-number to 0;
+            padString = String((typeof padString !== 'undefined' ? padString : ' '));
+            if (this.length > targetLength) {
+                return String(this);
+            }
+            else {
+                targetLength = targetLength-this.length;
+                if (targetLength > padString.length) {
+                    padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
+                }
+                return padString.slice(0,targetLength) + String(this);
+            }
+        };
+    }
+
+    // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padEnd
+    if (!String.prototype.padEnd) {
+        String.prototype.padEnd = function padEnd(targetLength,padString) {
+            targetLength = targetLength>>0; //floor if number or convert non-number to 0;
+            padString = String((typeof padString !== 'undefined' ? padString : ' '));
+            if (this.length > targetLength) {
+                return String(this);
+            }
+            else {
+                targetLength = targetLength-this.length;
+                if (targetLength > padString.length) {
+                    padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
+                }
+                return String(this) + padString.slice(0,targetLength);
+            }
+        };
+    }
+
+	// From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+	if (!Object.keys) {
+		Object.keys = (function() {
+			'use strict';
+			var hasOwnProperty = Object.prototype.hasOwnProperty,
+				hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
+				dontEnums = [
+					'toString',
+					'toLocaleString',
+					'valueOf',
+					'hasOwnProperty',
+					'isPrototypeOf',
+					'propertyIsEnumerable',
+					'constructor'
+				],
+				dontEnumsLength = dontEnums.length;
+
+			return function(obj) {
+				if (typeof obj !== 'function' && (typeof obj !== 'object' || obj === null)) {
+					throw new TypeError('Object.keys called on non-object');
+				}
+
+				var result = [], prop, i;
+
+				for (prop in obj) {
+					if (hasOwnProperty.call(obj, prop)) {
+						result.push(prop);
+					}
+				}
+
+				if (hasDontEnumBug) {
+					for (i = 0; i < dontEnumsLength; i++) {
+						if (hasOwnProperty.call(obj, dontEnums[i])) {
+							result.push(dontEnums[i]);
+						}
+					}
+				}
+				return result;
+			};
+		}());
+	}
+
+	// https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/Base64_encoding_and_decoding#The_Unicode_Problem
+    function base64encode(str) {
+    	str = encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
+    		return String.fromCharCode('0x' + p1);
+        });
+    	str = btoa(str);
+
+		if ( ! $("#base64pad").prop("checked")) {
+			str = str.replace(/=*$/, "");
+		}
+
+    	return str;
+    }
+
+    function base64decode(str) {
+		var diff = (str.length % 4);
+		var pad = 0;
+		if (0 < diff) {
+			pad = 4 - diff;
+		}
+		str = str.padEnd(str.length + pad, "=");
+
+		str = atob(str).split('').map( function (c) {
+    		return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join('');
+    	return decodeURIComponent(str);
+    }
+
+    function base64urlencode(str) {
+    	str = base64encode(str);
+    	str = str.replace("+", "-").replace("/", "_");
+
+    	return str;
+    }
+
+    function base64urldecode(str) {
+    	str = str.replace("-", "+").replace("_", "/");
+    	return base64decode(str);
+    }
+
+    function base64enc(str) {
+    	if ($("#base64url").prop("checked")) {
+    		return base64urlencode(str);
+        }
+        else {
+    		return base64encode(str);
+        }
+    }
+
+    // return a moment object parsed from
+    // either unix or unix w/milliseconds
+    function ut(unix) {
+    	var ut;
+    	if (11 <= ("" + unix).length) {
+    		if (-1 === ("" + unix).indexOf(".")) {
+    			ut = moment.unix(unix);
+            }
+            else {
+				ut = moment(unix);
+			}
+        }
+        else {
+    		ut = moment.unix(unix);
+        }
+
+        return ut;
+    }
+
+    function fromUnix(unix) {
+    	var ut = ut(unix);
+
+    	var split = [
+    		ut.year(),
+            ut.month(),
+            ut.day(),
+            ut.hours(),
+            ut.minutes(),
+            ut.seconds(),
+            ut.milliseconds(),
+            ut.zone()
+        ];
+    }
+
+    function fromRaw(str) {
+    	var raw = str;
+
+    	return [
+			raw,
+            base64enc(raw)
+        ];
+    }
+
+    function fromBase64(str) {
+    	var raw = base64urldecode(str);
+
+    	return [
+			raw,
+			base64enc(raw)
+        ];
+    }
+
+    function fromJson(str) {
+    	var raw = JSON.stringify(JSON.parse(str));
+
+    	return [
+    		raw,
+            base64enc(raw)
+        ];
+    }
+
+    // actions
+	$("#base64").find("textarea").bindWithDelay("change keyup share:update", function (evt) {
+		// if there was a modifier pressed (Alt, Ctrl, etc), don't do anything
+		// the change event will capture any changes like cuts or pastes
+		if (evt.altKey || evt.ctrlKey || evt.metaKey) {
+			evt.preventDefault();
+			evt.stopPropagation();
+			return false;
+		}
+
+		if (("change" === evt.type) && blocked) {
+			return;
+		}
+
+		var type = $(this).attr("id").split("_")[0];
+		var val = $(this).val();
+
+		if ("" === val) {
+			// fill the textareas with the empty string
+			$("#raw_result").not(":focus").val("");
+			$("#base64_result").not(":focus").val("");
+			$("#json_result").not(":focus").val("");
+
+			// pass the emptiness along to the other areas
+			if ("share:update" !== evt.type) {
+				// nothing here yet
+			}
+
+			return
+		}
+
+		var funcName = "from"+type.charAt(0).toUpperCase()+type.slice(1);
+		var ret = window[funcName](val);
+
+		// fill the textareas with the returned values
+		$("#raw_result").not(":focus").val(ret[0]);
+		$("#base64_result").not(":focus").val(ret[1]);
+
+		var a;
+		try {
+			a = JSON.parse(ret[0]);
+			a = JSON.stringify(a, null, "\t");
+        }
+        catch (e) {
+			a = e;
+        }
+		$("#json_result").not(":focus").val(a);
+
+		// pass the bytes along to the other areas
+		if ("share:update" !== evt.type) {
+			// nothing here yet
+		}
+	}, bindDelay);
+
+    $("#base64url").on("change click", function (evt) {
+    	$("#raw_result").trigger("change");
+    });
+
+    $("#base64pad").on("change click", function (evt) {
+    	$("#raw_result").trigger("change");
+    });
+
+	$("#dates").find("input").bindWithDelay("change keyup share:update", function (evt) {
+
+	}, bindDelay);
+
+    // build/populate the date fields
+    function setup_dates() {
+    	var i;
+    	var tzs = moment.tz.names();
+    	var groups = {};
+    	var now = moment();
+
+    	for (i = 0; i < tzs.length; i += 1) {
+    		var split = tzs[i].split("/");
+    		if (1 === split.length) {
+    			if ("undefined" === typeof groups["empty"]) {
+    				groups["empty"] = [];
+                }
+
+    			groups.empty.push(tzs[i]);
+            }
+            else {
+				if ("undefined" === typeof groups[split[0]]) {
+					groups[split[0]] = [];
+				}
+
+      			groups[split[0]].push(split.join("/"));
+            }
+        }
+
+        var options = "";
+
+        var keys = Object.keys(groups);
+    	keys.sort();
+    	for (i = 0; i < keys.length; i += 1) {
+    		if ("empty" === keys[i]) {
+    			continue;
+            }
+
+            options += "<optgroup label=\"" + keys[i] + "\">";
+
+    		groups[keys[i]].sort();
+    		for (var ii = 0; ii < groups[keys[i]].length; ii += 1) {
+    			options += "<option value=\"" + groups[keys[i]][ii] + "\">" + groups[keys[i]][ii] + "</option>";
+            }
+
+    		options += "</optgroup>";
+        }
+
+        if ("undefined" !== typeof(groups["empty"])) {
+			options += "<optgroup label=\"-----\">";
+
+			groups["empty"].sort();
+			for (i = 0; i < groups["empty"].length; i += 1) {
+				options += "<option value=\"" + groups["empty"][i] + "\">" + groups["empty"][i] + "</option>";
+			}
+
+			options += "</optgroup>";
+        }
+		$("#date_tz").empty().append(options).val(moment.tz.guess());
+
+		$("#date_year").val(now.year());
+		$("#date_month").val(now.format("MM"));
+		$("#date_day").val(now.format("DD"));
+		$("#date_hour").val(now.format("HH"));
+		$("#date_minute").val(now.format("mm"));
+		$("#date_second").val(now.format("ss"));
+		$("#date_unix").val(now.format("x"));
+	}
+	setup_dates();
   </script>
 </div>
 </body>
