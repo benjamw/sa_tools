@@ -30,8 +30,10 @@ TODO: syntax highlighting for the JSON
         height: 100px;
     }
 
-    .container-fluid textarea#json_result {
+    .container-fluid textarea.autoExpand {
         height: auto;
+        min-height: 100px;
+        max-height: 1000px;
     }
 
     .btn {
@@ -72,6 +74,7 @@ TODO: syntax highlighting for the JSON
           <label for="raw_result">Raw:</label>
           <textarea id="raw_result" class="form-control"></textarea>
           <button class="btn btn-sm btn-info copy">Copy</button>
+          <span class="msg"></span>
         </div>
         <div class="form-group">
           <label for="base64_result">Base64:</label> &nbsp; &nbsp;
@@ -79,11 +82,13 @@ TODO: syntax highlighting for the JSON
           <label class="checkbox-inline" title="Display the Base64 padding characters ( = )"><input type="checkbox" id="base64pad" checked="checked"> Padded </label>
           <textarea id="base64_result" class="form-control"></textarea>
           <button class="btn btn-sm btn-info copy">Copy</button>
+          <span class="msg"></span>
         </div>
         <div class="form-group">
           <label for="json_result">JSON:</label>
-          <textarea id="json_result" class="form-control" rows="50"></textarea>
+          <textarea id="json_result" class="form-control autoExpand"></textarea>
           <button class="btn btn-sm btn-info copy">Copy</button>
+          <span class="msg"></span>
         </div>
       </section>
     </div>
@@ -329,10 +334,10 @@ TODO: syntax highlighting for the JSON
     }
 
     // actions
-	$("#base64").find("textarea").bindWithDelay("change keyup share:update", function (evt) {
+	$("#base64").find("textarea").bindWithDelay("change keyup share:update share:expand", function (evt) {
 		// if there was a modifier pressed (Alt, Ctrl, etc), don't do anything
 		// the change event will capture any changes like cuts or pastes
-		if (evt.altKey || evt.ctrlKey || evt.metaKey) {
+		if (evt.altKey || evt.ctrlKey || evt.metaKey || "share:expand" === evt.type) {
 			evt.preventDefault();
 			evt.stopPropagation();
 			return false;
@@ -374,13 +379,20 @@ TODO: syntax highlighting for the JSON
         catch (e) {
 			a = e;
         }
-		$("#json_result").not(":focus").val(a);
+		$("#json_result").not(":focus").val(a).trigger("share:expand");
 
 		// pass the bytes along to the other areas
 		if ("share:update" !== evt.type) {
 			// nothing here yet
 		}
 	}, bindDelay);
+
+	$("textarea.autoExpand").on("change keyup share:expand", function(){
+			var minRows = this.getAttribute('data-min-rows')|0, rows;
+			this.rows = minRows;
+			rows = Math.ceil(this.scrollHeight / 16);
+			this.rows = minRows + rows;
+		});
 
     $("#base64url").on("change click", function (evt) {
     	$("#raw_result").trigger("change");
@@ -394,7 +406,26 @@ TODO: syntax highlighting for the JSON
 
 	}, bindDelay);
 
-    // build/populate the date fields
+
+	$("button.copy").on("click", function (evt) {
+		var $text = $(this).parents(".form-group").find("textarea");
+		var $span = $text.parents(".form-group").find("span.msg");
+
+		$text.select();
+		document.execCommand("copy");
+
+		$span.text("Copied!").fadeOut(5000, function () {
+			$span.text("").show();
+		});
+	});
+
+	$("button.clear").on("click", function (evt) {
+		var $text = $(this).parents(".form-group").find("textarea");
+		$text.val("").trigger("keyup");
+	});
+
+
+	// build/populate the date fields
     function setup_dates() {
     	var i;
     	var tzs = moment.tz.names();
