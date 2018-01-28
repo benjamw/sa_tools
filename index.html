@@ -1,7 +1,9 @@
 <!doctype html>
 <!--
 
-TODO: make the dates work
+TODO: validate the dates so that invalid dates cannot be created
+    revert to whatever date is shown in either the unix or the datetime when there is something invalid
+TODO: figure out why the TZ doesn't work
 
 TODO: inspect the incoming base64 encoded string, and if a definitive URL, or non-URL character is found, switch the checkbox accordingly
 TODO: inspect the incoming base64 encoded string, and if padding characters are found, switch the checkbox to accordingly, ignore if not found
@@ -71,22 +73,22 @@ TODO: syntax highlighting for the JSON
 
       <section id="base64" class="well">
         <div class="form-group">
-          <label for="raw_result">Raw:</label>
-          <textarea id="raw_result" class="form-control"></textarea>
+          <label for="text_raw">Raw:</label>
+          <textarea id="text_raw" class="form-control"></textarea>
           <button class="btn btn-sm btn-info copy">Copy</button>
           <span class="msg"></span>
         </div>
         <div class="form-group">
-          <label for="base64_result">Base64:</label> &nbsp; &nbsp;
+          <label for="text_base64">Base64:</label> &nbsp; &nbsp;
           <label class="checkbox-inline" title="Use Base64 URL encoding"><input type="checkbox" id="base64url" checked="checked"> URL </label> &nbsp;
           <label class="checkbox-inline" title="Display the Base64 padding characters ( = )"><input type="checkbox" id="base64pad" checked="checked"> Padded </label>
-          <textarea id="base64_result" class="form-control"></textarea>
+          <textarea id="text_base64" class="form-control"></textarea>
           <button class="btn btn-sm btn-info copy">Copy</button>
           <span class="msg"></span>
         </div>
         <div class="form-group">
-          <label for="json_result">JSON:</label>
-          <textarea id="json_result" class="form-control autoExpand"></textarea>
+          <label for="text_json">JSON:</label>
+          <textarea id="text_json" class="form-control autoExpand"></textarea>
           <button class="btn btn-sm btn-info copy">Copy</button>
           <span class="msg"></span>
         </div>
@@ -131,6 +133,12 @@ TODO: syntax highlighting for the JSON
           <div class="form-group col-md-2">
             <label for="date_second">Second</label>
             <input type="number" id="date_second" class="form-control" min="0" max="60" step="1">
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-md-12">
+            <label for="date_date">DateTime</label>
+            <input type="datetime-local" id="date_date" class="form-control">
           </div>
         </div>
       </section>
@@ -278,10 +286,10 @@ TODO: syntax highlighting for the JSON
     	var ut;
     	if (11 <= ("" + unix).length) {
     		if (-1 === ("" + unix).indexOf(".")) {
-    			ut = moment.unix(unix);
+    			ut = moment(unix);
             }
             else {
-				ut = moment(unix);
+				ut = moment.unix(unix);
 			}
         }
         else {
@@ -333,6 +341,17 @@ TODO: syntax highlighting for the JSON
         ];
     }
 
+    function populateDates(mo) {
+		$("#date_year").not(":focus").val(mo.year());
+		$("#date_month").not(":focus").val(mo.format("MM"));
+		$("#date_day").not(":focus").val(mo.format("DD"));
+		$("#date_hour").not(":focus").val(mo.format("HH"));
+		$("#date_minute").not(":focus").val(mo.format("mm"));
+		$("#date_second").not(":focus").val(mo.format("ss"));
+		$("#date_unix").not(":focus").val(mo.format("x"));
+		$("#date_date").not(":focus").val(mo.format("YYYY-MM-DDTHH:mm:ss"));
+	}
+
     // actions
 	$("#base64").find("textarea").bindWithDelay("change keyup share:update share:expand", function (evt) {
 		// if there was a modifier pressed (Alt, Ctrl, etc), don't do anything
@@ -347,14 +366,14 @@ TODO: syntax highlighting for the JSON
 			return;
 		}
 
-		var type = $(this).attr("id").split("_")[0];
+		var type = $(this).attr("id").split("_")[1];
 		var val = $(this).val();
 
 		if ("" === val) {
 			// fill the textareas with the empty string
-			$("#raw_result").not(":focus").val("");
-			$("#base64_result").not(":focus").val("");
-			$("#json_result").not(":focus").val("");
+			$("#text_raw").not(":focus").val("");
+			$("#text_base64").not(":focus").val("");
+			$("#text_json").not(":focus").val("");
 
 			// pass the emptiness along to the other areas
 			if ("share:update" !== evt.type) {
@@ -368,8 +387,8 @@ TODO: syntax highlighting for the JSON
 		var ret = window[funcName](val);
 
 		// fill the textareas with the returned values
-		$("#raw_result").not(":focus").val(ret[0]);
-		$("#base64_result").not(":focus").val(ret[1]);
+		$("#text_raw").not(":focus").val(ret[0]);
+		$("#text_base64").not(":focus").val(ret[1]);
 
 		var a;
 		try {
@@ -379,7 +398,7 @@ TODO: syntax highlighting for the JSON
         catch (e) {
 			a = e;
         }
-		$("#json_result").not(":focus").val(a).trigger("share:expand");
+		$("#text_json").not(":focus").val(a).trigger("share:expand");
 
 		// pass the bytes along to the other areas
 		if ("share:update" !== evt.type) {
@@ -403,7 +422,51 @@ TODO: syntax highlighting for the JSON
     });
 
 	$("#dates").find("input").bindWithDelay("change keyup share:update", function (evt) {
+		// if there was a modifier pressed (Alt, Ctrl, etc), don't do anything
+		// the change event will capture any changes like cuts or pastes
+		if (evt.altKey || evt.ctrlKey || evt.metaKey || "share:expand" === evt.type) {
+			evt.preventDefault();
+			evt.stopPropagation();
+			return false;
+		}
 
+		if (("change" === evt.type) && blocked) {
+			return;
+		}
+
+		var type = $(this).attr("id").split("_")[1];
+		var val = $(this).val();
+		var tz = $("#date_tz").val();
+
+		console.log(type);
+		console.log(val);
+
+		// these values should never be empty
+
+		var mo;
+		if ("unix" === type) {
+			mo = ut(val);
+        }
+        else if ("date" === type) {
+			mo = moment.tz(val, tz);
+        }
+        else {
+			mo = moment.tz([
+                $("#date_year").val(),
+                $("#date_month").val() - 1,
+                $("#date_day").val(),
+                $("#date_hour").val(),
+                $("#date_minute").val(),
+                $("#date_second").val()
+            ], tz)
+        }
+
+		populateDates(mo);
+
+		// pass the values along to the other areas
+		if ("share:update" !== evt.type) {
+			// nothing here yet
+		}
 	}, bindDelay);
 
 
@@ -481,13 +544,7 @@ TODO: syntax highlighting for the JSON
         }
 		$("#date_tz").empty().append(options).val(moment.tz.guess());
 
-		$("#date_year").val(now.year());
-		$("#date_month").val(now.format("MM"));
-		$("#date_day").val(now.format("DD"));
-		$("#date_hour").val(now.format("HH"));
-		$("#date_minute").val(now.format("mm"));
-		$("#date_second").val(now.format("ss"));
-		$("#date_unix").val(now.format("x"));
+		populateDates(now);
 	}
 	setup_dates();
   </script>
