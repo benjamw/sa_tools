@@ -361,7 +361,8 @@ TODO: syntax highlighting for the JSON
 			];
 		}
 
-		function populateDates(mo) {
+		function populateDates(mo, tz) {
+			mo = mo.tz(tz);
 			$("#date_year").not(":focus").val(mo.year());
 			$("#date_month").not(":focus").val(mo.format("MM"));
 			$("#date_day").not(":focus").val(mo.format("DD"));
@@ -481,7 +482,7 @@ TODO: syntax highlighting for the JSON
 				], tz)
 			}
 
-			populateDates(mo);
+			populateDates(mo, tz);
 
 			// pass the values along to the other areas
 			if ("share:update" !== evt.type) {
