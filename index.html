@@ -284,6 +284,7 @@ TODO: syntax highlighting for the JSON
     // either unix or unix w/milliseconds
     function ut(unix) {
     	var ut;
+	unix = parseInt(unix, 10);
     	if (11 <= ("" + unix).length) {
     		if (-1 === ("" + unix).indexOf(".")) {
     			ut = moment(unix);
