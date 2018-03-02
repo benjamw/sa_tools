@@ -563,7 +563,7 @@ TODO: syntax highlighting for the JSON
 			}
 			$("#date_tz").empty().append(options).val(moment.tz.guess());
 
-			populateDates(now);
+			populateDates(now, moment.tz.guess());
 		}
 
 	setup_dates();
